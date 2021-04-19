@@ -155,6 +155,7 @@ void draw_image(xcb_pixmap_t bg_pixmap, uint32_t *resolution) {
 
         /* Display a (centered) text of the current PAM state. */
         char *text = malloc(256);
+        strcpy(text, "");
 
         if (auth_state == STATE_AUTH_WRONG || auth_state == STATE_I3LOCK_LOCK_FAILED)
             string_repeat(text, "•", last_input_position);
