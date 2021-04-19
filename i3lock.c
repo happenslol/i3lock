@@ -73,6 +73,7 @@ bool debug_mode = false;
 bool unlock_indicator = true;
 char *modifier_string = NULL;
 static bool dont_fork = false;
+int show_on_screen = -1;
 struct ev_loop *main_loop;
 static struct ev_timer *clear_auth_wrong_timeout;
 static struct ev_timer *clear_indicator_timeout;
@@ -1028,6 +1029,7 @@ int main(int argc, char *argv[]) {
         {"no-unlock-indicator", no_argument, NULL, 'u'},
         {"image", required_argument, NULL, 'i'},
         {"raw", required_argument, NULL, 0},
+        {"screen", required_argument, NULL, 's'},
         {"tiling", no_argument, NULL, 't'},
         {"ignore-empty-password", no_argument, NULL, 'e'},
         {"inactivity-timeout", required_argument, NULL, 'I'},
@@ -1041,7 +1043,7 @@ int main(int argc, char *argv[]) {
     if (getenv("WAYLAND_DISPLAY") != NULL)
         errx(EXIT_FAILURE, "i3lock is a program for X11 and does not work on Wayland. Try https://github.com/swaywm/swaylock instead");
 
-    char *optstring = "hvnbdc:p:ui:teI:f";
+    char *optstring = "hvnbs:dc:p:ui:teI:f";
     while ((o = getopt_long(argc, argv, optstring, longopts, &longoptind)) != -1) {
         switch (o) {
             case 'v':
@@ -1051,6 +1053,10 @@ int main(int argc, char *argv[]) {
                 break;
             case 'b':
                 beep = true;
+                break;
+            case 's':
+                if (sscanf(optarg, "%d", &show_on_screen) != 1 || show_on_screen < 0)
+                    errx(EXIT_FAILURE, "invalid screen, must be a positive index\n");
                 break;
             case 'd':
                 fprintf(stderr, "DPMS support has been removed from i3lock. Please see the manpage i3lock(1).\n");
@@ -1102,7 +1108,7 @@ int main(int argc, char *argv[]) {
                 show_failed_attempts = true;
                 break;
             default:
-                errx(EXIT_FAILURE, "Syntax: i3lock [-v] [-n] [-b] [-d] [-c color] [-u] [-p win|default]"
+                errx(EXIT_FAILURE, "Syntax: i3lock [-v] [-n] [-b] [-s] [-d] [-c color] [-u] [-p win|default]"
                                    " [-i image.png] [-t] [-e] [-I timeout] [-f]");
         }
     }
